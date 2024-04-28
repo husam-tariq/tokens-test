@@ -19,13 +19,14 @@ def getData(links) -> list:
     data = list()
 
     for link in links:
+      try:
         coin = re.split('https://cryptorank\.io/price/|/arbitrage', link)[1]
         response = requests.get(f'https://api.cryptorank.io/v0/coins/{coin}/tickers?includeQuote=false').json()
 
         allowedData = []
         exchanges = list()
-        try:
-           for i in range(len(response['data'])):
+        
+        for i in range(len(response['data'])):
                 if len(response['data']) > 1 and response['data'][i]['to'] in ALLOWED_QUOTES:
                  if "usdVolume" in response['data'][i] and response['data'][i]["usdVolume"] > MIN_TRADING_VOLUME:
                     if "usdLast" in response['data'][i]:
@@ -35,11 +36,11 @@ def getData(links) -> list:
                             "volume": response['data'][i]['usdVolume'],
                             "usd_last": response['data'][i]['usdLast'],
                         })
-        except Exception as e:
+      except Exception as e:
             print(coin)
         
-        pairs = list()
-        for i in range(len(allowedData)):
+      pairs = list()
+      for i in range(len(allowedData)):
             for j in range(len(allowedData)):
                 if i == j:
                     continue
@@ -58,7 +59,7 @@ def getData(links) -> list:
                         "spread": spread
                     })
 
-        if len(exchanges) > 0 and len(pairs) > 0:
+      if len(exchanges) > 0 and len(pairs) > 0:
             scheme = {
                 "name": coin,
                 "url": f'https://cryptorank.io/price/{coin}',
